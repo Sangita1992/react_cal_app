@@ -1,0 +1,20 @@
+# Development Dockerfile with hot reload for Vite React application
+FROM node:18-alpine
+# Set working directory
+WORKDIR /app
+
+# Install dependencies and build the application
+COPY  package.json package-lock.json ./
+
+#Install dependencies
+RUN npm install
+
+
+# Copy project files
+COPY . .
+
+# Expose port for Vite dev server
+EXPOSE 5173
+
+# Start development server with hot reload
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"] 

@@ -1,34 +1,131 @@
-# React + Vite
+# React Calculator Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deploy to GitHub Pages](https://github.com/Sangita1992/react_cal_app/actions/workflows/deploy.yml/badge.svg)](https://github.com/Sangita1992/react_cal_app/actions/workflows/deploy.yml)
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project sets up a complete **CI/CD pipeline** for a **React-based Calculator Application**, leveraging **Docker** for local development and **GitHub Actions** for automated deployment to **GitHub Pages**. The goal is to containerize the app for development with hot reloading and automate its deployment process.
 
-## Running the Project with Docker
+---
 
-To run this project using Docker, follow these steps:
+## Learning Objectives
 
-1. **Build the Docker Image**:
-   ```bash
-   docker-compose build
-   ```
+- Containerize the react calculator app with Docker and enable hot reload
+- Automate build and deployment using GitHub Actions
+- Host the app on GitHub Pages
+- Follow DevOps best practices for workflow and documentation
 
-2. **Run the Application**:
-   ```bash
-   docker-compose up
-   ```
+---
 
-3. **Access the Application**:
-   Open your browser and navigate to `http://localhost:3000`.
+## Technology Stack
 
-### Notes
+- React (Vite)
+- Docker
+- GitHub Actions
+- GitHub Pages
 
-- Ensure Docker and Docker Compose are installed on your system.
-- The application runs on Node.js version `22.13.1` as specified in the Dockerfile.
-- The `NODE_ENV` environment variable is set to `production` for optimized performance.
-- The application exposes port `3000` for HTTP access.
 
-For further details, refer to the Dockerfile and Docker Compose configuration provided in the project.
+### Getting Started 
+
+1. Manually created repository on Github (react_cal_app)
+2. push the react calculator code into github repository via terminal with message `initial commit`.
+
+
+## Docker Setup
+
+1. manually created `Dockerfile.dev`
+
+   ```dockerfile
+   # Dockerfile.dev
+   FROM node:18-alpine
+   WORKDIR /app
+   COPY package.json package-lock.json ./
+   RUN npm install
+   COPY . .
+   EXPOSE 5173
+   CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+2. manually created `compose.yml` and updated as follow:
+  #compose.yml
+   version: '3.8'
+   services:
+   react_calculator:
+      build:
+         context: .
+         dockerfile: Dockerfile.dev
+      container_name: react_calculator_app
+      ports:
+         - "5173:5173"
+      volumes:
+         - .:/app
+         - /app/node_modules
+      environment:
+         - NODE_ENV=development
+
+## Deployment on Github
+   1. Manually created folders & file `.github` > `workflows`> `deploy.yml`
+   2. update `deploy.yml` as follows:
+      #name of overall action
+      name: Deploy to GitHub Pages
+
+      #on defines WHEN the action(s) will run
+      on: 
+         push:
+            branches: [main]
+         workflow_dispatch: 
+
+      #permission grant to image runner the ability to read/write files
+      permissions: 
+         contents: read
+         pages: write
+         id-token: write
+
+      concurrency:
+         group: "pages"
+         cancel-in-progress: true
+
+      jobs: 
+         build:
+            runs-on: ubuntu-22.04
+            steps:
+                  - name: Checkout Repository
+                  uses: actions/checkout@v4
+
+                  - name: Setup Node
+                  uses: actions/setup-node@v4
+                  with:
+                     node-version: 18
+                     cache: 'npm'
+
+                  - name: Install dependencies
+                  run: npm install
+
+                  - name: Build Application
+                  run: npm run build
+
+                  - name: Upload artifact
+                  uses: actions/upload-pages-artifact@v3
+                  with:
+                     path: ./dist
+
+
+         deploy:
+            needs: build
+            runs-on: ubuntu-22.04
+            environment: 
+                  name : github-pages
+                  url: ${{ steps.deployment.outputs.page_url }}
+
+            steps:
+                  - name: Deploy to GitHub Pages
+                  id: deployment
+                  uses: actions/deploy-pages@v4
+3. add homepage URL`https://Sangita1992.github.io/react_cal_app` into `package.json` 
+4. add base path `/react_cal_app/` & `server` field into `vite.config.js`
+5. made commit with message `Add CI/CD deployment` & push into github.
+
+### Enabling GitHub Pages
+   1. In react_cal_app repository settings, navigate to "Pages" section & select "Github Actions" under "Build and Deployment."
+   2. Re-run the github action, which automate the deployment and generated deployment link `https://sangita1992.github.io/react_cal_app/` 
+
+
+

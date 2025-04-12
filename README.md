@@ -1,5 +1,8 @@
 # React Calculator Application
 
+## Repository Link 
+`https://github.com/Sangita1992/react_cal_app`
+
 [![Deploy to GitHub Pages](https://github.com/Sangita1992/react_cal_app/actions/workflows/deploy.yml/badge.svg)](https://github.com/Sangita1992/react_cal_app/actions/workflows/deploy.yml)
 
 ## Overview
